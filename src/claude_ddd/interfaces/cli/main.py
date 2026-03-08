@@ -1,20 +1,26 @@
 from decimal import Decimal
 
-from claude_ddd.application.dtos.customer_dto import CreateCustomerInput
-from claude_ddd.application.dtos.order_dto import AddItemInput, CancelOrderInput, CreateOrderInput, PlaceOrderInput
-from claude_ddd.application.dtos.product_dto import CreateProductInput
-from claude_ddd.application.use_cases.add_item_to_order import AddItemToOrderUseCase
-from claude_ddd.application.use_cases.cancel_order import CancelOrderUseCase
-from claude_ddd.application.use_cases.create_customer import CreateCustomerUseCase
-from claude_ddd.application.use_cases.create_order import CreateOrderUseCase
-from claude_ddd.application.use_cases.create_product import CreateProductUseCase
-from claude_ddd.application.use_cases.place_order import PlaceOrderUseCase
-from claude_ddd.domain.events.domain_event import DomainEvent, OrderCancelled, OrderCreated, OrderItemAdded, OrderPlaced
-from claude_ddd.domain.services.pricing_service import PricingService
-from claude_ddd.infrastructure.event_bus.simple_event_bus import EventBus
-from claude_ddd.infrastructure.persistence.in_memory_customer_repository import InMemoryCustomerRepository
-from claude_ddd.infrastructure.persistence.in_memory_order_repository import InMemoryOrderRepository
-from claude_ddd.infrastructure.persistence.in_memory_product_repository import InMemoryProductRepository
+from claude_ddd.shared.domain.events.domain_event import DomainEvent
+from claude_ddd.shared.infrastructure.event_bus.simple_event_bus import EventBus
+
+from claude_ddd.customers.application.dtos.customer_dto import CreateCustomerInput
+from claude_ddd.customers.application.use_cases.create_customer import CreateCustomerUseCase
+from claude_ddd.customers.infrastructure.persistence.in_memory_customer_repository import InMemoryCustomerRepository
+
+from claude_ddd.catalog.application.dtos.product_dto import CreateProductInput
+from claude_ddd.catalog.application.use_cases.create_product import CreateProductUseCase
+from claude_ddd.catalog.infrastructure.persistence.in_memory_product_repository import InMemoryProductRepository
+
+from claude_ddd.ordering.application.dtos.order_dto import AddItemInput, CancelOrderInput, CreateOrderInput, PlaceOrderInput
+from claude_ddd.ordering.application.use_cases.add_item_to_order import AddItemToOrderUseCase
+from claude_ddd.ordering.application.use_cases.cancel_order import CancelOrderUseCase
+from claude_ddd.ordering.application.use_cases.create_order import CreateOrderUseCase
+from claude_ddd.ordering.application.use_cases.place_order import PlaceOrderUseCase
+from claude_ddd.ordering.domain.events.order_events import OrderCancelled, OrderCreated, OrderItemAdded, OrderPlaced
+from claude_ddd.ordering.domain.services.pricing_service import PricingService
+from claude_ddd.ordering.infrastructure.adapters.catalog_product_query_adapter import CatalogProductQueryAdapter
+from claude_ddd.ordering.infrastructure.adapters.customer_query_adapter import CustomerQueryAdapter
+from claude_ddd.ordering.infrastructure.persistence.in_memory_order_repository import InMemoryOrderRepository
 
 
 def log_event(event: DomainEvent) -> None:
@@ -32,12 +38,15 @@ def build_container():
     order_repo = InMemoryOrderRepository()
     pricing_service = PricingService()
 
+    customer_query = CustomerQueryAdapter(customer_repo)
+    product_query = CatalogProductQueryAdapter(product_repo)
+
     return {
         "create_customer": CreateCustomerUseCase(customer_repo),
         "create_product": CreateProductUseCase(product_repo),
-        "create_order": CreateOrderUseCase(order_repo, customer_repo, event_bus),
-        "add_item": AddItemToOrderUseCase(order_repo, product_repo, event_bus),
-        "place_order": PlaceOrderUseCase(order_repo, product_repo, pricing_service, event_bus),
+        "create_order": CreateOrderUseCase(order_repo, customer_query, event_bus),
+        "add_item": AddItemToOrderUseCase(order_repo, product_query, event_bus),
+        "place_order": PlaceOrderUseCase(order_repo, product_query, pricing_service, event_bus),
         "cancel_order": CancelOrderUseCase(order_repo, event_bus),
     }
 
