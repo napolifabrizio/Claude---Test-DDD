@@ -1,9 +1,9 @@
 import pytest
 from uuid import uuid4
 
-from src.domain.entities.order import Order, OrderStatus
-from src.domain.entities.product import Product
-from src.domain.value_objects.money import Money
+from claude_ddd.domain.entities.order import Order, OrderStatus
+from claude_ddd.domain.entities.product import Product
+from claude_ddd.domain.value_objects.money import Money
 
 
 class TestProduct:
@@ -102,7 +102,7 @@ class TestOrder:
             order.cancel()
 
     def test_domain_events_emitted_on_add_item(self):
-        from src.domain.events.domain_event import OrderItemAdded
+        from claude_ddd.domain.events.domain_event import OrderItemAdded
         order = self._make_order()
         order.add_item(uuid4(), "Widget", Money.of(10), 1)
         events = order.pull_events()

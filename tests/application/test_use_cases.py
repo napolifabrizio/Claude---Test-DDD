@@ -2,20 +2,20 @@ import pytest
 from decimal import Decimal
 from uuid import uuid4
 
-from src.application.dtos.customer_dto import CreateCustomerInput
-from src.application.dtos.order_dto import AddItemInput, CancelOrderInput, CreateOrderInput, PlaceOrderInput
-from src.application.dtos.product_dto import CreateProductInput
-from src.application.use_cases.add_item_to_order import AddItemToOrderUseCase
-from src.application.use_cases.cancel_order import CancelOrderUseCase
-from src.application.use_cases.create_customer import CreateCustomerUseCase
-from src.application.use_cases.create_order import CreateOrderUseCase
-from src.application.use_cases.create_product import CreateProductUseCase
-from src.application.use_cases.place_order import PlaceOrderUseCase
-from src.domain.services.pricing_service import PricingService
-from src.infrastructure.event_bus.simple_event_bus import EventBus
-from src.infrastructure.persistence.in_memory_customer_repository import InMemoryCustomerRepository
-from src.infrastructure.persistence.in_memory_order_repository import InMemoryOrderRepository
-from src.infrastructure.persistence.in_memory_product_repository import InMemoryProductRepository
+from claude_ddd.application.dtos.customer_dto import CreateCustomerInput
+from claude_ddd.application.dtos.order_dto import AddItemInput, CancelOrderInput, CreateOrderInput, PlaceOrderInput
+from claude_ddd.application.dtos.product_dto import CreateProductInput
+from claude_ddd.application.use_cases.add_item_to_order import AddItemToOrderUseCase
+from claude_ddd.application.use_cases.cancel_order import CancelOrderUseCase
+from claude_ddd.application.use_cases.create_customer import CreateCustomerUseCase
+from claude_ddd.application.use_cases.create_order import CreateOrderUseCase
+from claude_ddd.application.use_cases.create_product import CreateProductUseCase
+from claude_ddd.application.use_cases.place_order import PlaceOrderUseCase
+from claude_ddd.domain.services.pricing_service import PricingService
+from claude_ddd.infrastructure.event_bus.simple_event_bus import EventBus
+from claude_ddd.infrastructure.persistence.in_memory_customer_repository import InMemoryCustomerRepository
+from claude_ddd.infrastructure.persistence.in_memory_order_repository import InMemoryOrderRepository
+from claude_ddd.infrastructure.persistence.in_memory_product_repository import InMemoryProductRepository
 
 
 @pytest.fixture
