@@ -22,6 +22,9 @@ poetry run pytest -k "test_order_place"
 
 # Run the CLI demo
 poetry run python -m claude_ddd.interfaces.cli.main
+
+# Run the FastAPI server
+poetry run uvicorn claude_ddd.interfaces.api.app:app --reload
 ```
 
 ## Architecture

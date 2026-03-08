@@ -18,6 +18,7 @@ A Domain-Driven Design (DDD) implementation of an order management system in Pyt
 - [Cross-Context Communication](#cross-context-communication)
 - [Key Patterns](#key-patterns)
 - [Getting Started](#getting-started)
+- [API Reference](#api-reference)
 - [Running Tests](#running-tests)
 
 ---
@@ -31,7 +32,7 @@ A Domain-Driven Design (DDD) implementation of an order management system in Pyt
 | Python       | `3.11.9`               |
 | Author       | `napolifabrizio`       |
 | Build Tool   | Poetry                 |
-| Runtime Deps | None (pure Python)     |
+| Runtime Deps | `fastapi`, `uvicorn`   |
 | Dev Deps     | `pytest >= 8.0`        |
 
 The system models a simplified e-commerce order flow: creating customers and products, building orders with items, placing orders (with bulk discounts), and cancelling orders — all with domain events emitted throughout.
@@ -119,7 +120,13 @@ ftclaude/
 │   │           └── customer_query_adapter.py
 │   │
 │   └── interfaces/
-│       └── cli/main.py                       # Composition root
+│       ├── cli/main.py                       # CLI composition root
+│       └── api/
+│           ├── app.py                        # FastAPI composition root
+│           └── routers/
+│               ├── customers.py
+│               ├── products.py
+│               └── orders.py
 │
 ├── tests/
 │   ├── domain/
@@ -215,7 +222,11 @@ Adapters are the concrete bridge between the ordering context and other contexts
 
 ### Interfaces
 
-**`interfaces/cli/main.py`** — The composition root. The **only** place in the codebase that imports from multiple bounded contexts. `build_container()` instantiates repositories, builds adapters, injects them into use cases, and returns the wired container.
+Two composition roots are provided, each wiring the full DI container independently.
+
+**`interfaces/cli/main.py`** — CLI composition root. `build_container()` instantiates repositories, builds adapters, injects them into use cases, and runs a demo flow.
+
+**`interfaces/api/app.py`** — FastAPI composition root. Builds the same container once on startup (via `lifespan`) and exposes it to all route handlers. Routers are organized by bounded context under `interfaces/api/routers/`.
 
 ---
 
@@ -273,7 +284,31 @@ poetry install
 
 # Run the CLI demo
 poetry run python -m claude_ddd.interfaces.cli.main
+
+# Run the FastAPI server
+poetry run uvicorn claude_ddd.interfaces.api.app:app --reload
 ```
+
+Interactive API docs available at `http://localhost:8000/docs` once the server is running.
+
+---
+
+## API Reference
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/customers` | Create a customer |
+| `GET` | `/customers/{id}` | Get a customer by ID |
+| `POST` | `/products` | Create a product |
+| `GET` | `/products` | List all products |
+| `GET` | `/products/{id}` | Get a product by ID |
+| `POST` | `/orders` | Create a draft order |
+| `GET` | `/orders/{id}` | Get an order by ID |
+| `POST` | `/orders/{id}/items` | Add an item to a draft order |
+| `POST` | `/orders/{id}/place` | Place the order (applies bulk discount if ≥5 items) |
+| `POST` | `/orders/{id}/cancel` | Cancel the order |
+
+Domain rule violations (e.g. insufficient stock, duplicate email, invalid state transition) are returned as `422 Unprocessable Entity` with a descriptive `detail` message.
 
 ---
 
