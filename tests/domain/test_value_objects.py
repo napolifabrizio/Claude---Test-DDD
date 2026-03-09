@@ -1,9 +1,9 @@
 import pytest
 from decimal import Decimal
 
-from claude_ddd.shared.domain.value_objects.money import Money
-from claude_ddd.customers.domain.value_objects.email import Email
-from claude_ddd.customers.domain.value_objects.address import Address
+from claude_ddd.contexts.shared.domain.value_objects.money import Money
+from claude_ddd.contexts.customers.domain.value_objects.email import Email
+from claude_ddd.contexts.customers.domain.value_objects.address import Address
 
 
 class TestMoney:

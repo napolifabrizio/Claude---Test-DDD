@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel
 
-from claude_ddd.ordering.application.dtos.order_dto import (
+from claude_ddd.contexts.ordering.application.dtos.order_dto import (
     AddItemInput,
     CancelOrderInput,
     CreateOrderInput,
@@ -62,7 +62,7 @@ def create_order(body: CreateOrderRequest, container: dict = Depends(get_contain
 
 @router.get("/{order_id}")
 def get_order(order_id: UUID, container: dict = Depends(get_container)):
-    from claude_ddd.ordering.application.dtos.order_dto import OrderItemOutput
+    from claude_ddd.contexts.ordering.application.dtos.order_dto import OrderItemOutput
 
     order = container["order_repo"].find_by_id(order_id)
     if not order:

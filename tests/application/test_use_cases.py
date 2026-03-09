@@ -2,25 +2,25 @@ import pytest
 from decimal import Decimal
 from uuid import uuid4
 
-from claude_ddd.customers.application.dtos.customer_dto import CreateCustomerInput
-from claude_ddd.customers.application.use_cases.create_customer import CreateCustomerUseCase
-from claude_ddd.customers.infrastructure.persistence.in_memory_customer_repository import InMemoryCustomerRepository
+from claude_ddd.contexts.customers.application.dtos.customer_dto import CreateCustomerInput
+from claude_ddd.contexts.customers.application.use_cases.create_customer import CreateCustomerUseCase
+from claude_ddd.contexts.customers.infrastructure.persistence.in_memory_customer_repository import InMemoryCustomerRepository
 
-from claude_ddd.catalog.application.dtos.product_dto import CreateProductInput
-from claude_ddd.catalog.application.use_cases.create_product import CreateProductUseCase
-from claude_ddd.catalog.infrastructure.persistence.in_memory_product_repository import InMemoryProductRepository
+from claude_ddd.contexts.catalog.application.dtos.product_dto import CreateProductInput
+from claude_ddd.contexts.catalog.application.use_cases.create_product import CreateProductUseCase
+from claude_ddd.contexts.catalog.infrastructure.persistence.in_memory_product_repository import InMemoryProductRepository
 
-from claude_ddd.ordering.application.dtos.order_dto import AddItemInput, CancelOrderInput, CreateOrderInput, PlaceOrderInput
-from claude_ddd.ordering.application.use_cases.add_item_to_order import AddItemToOrderUseCase
-from claude_ddd.ordering.application.use_cases.cancel_order import CancelOrderUseCase
-from claude_ddd.ordering.application.use_cases.create_order import CreateOrderUseCase
-from claude_ddd.ordering.application.use_cases.place_order import PlaceOrderUseCase
-from claude_ddd.ordering.domain.services.pricing_service import PricingService
-from claude_ddd.ordering.infrastructure.adapters.catalog_product_query_adapter import CatalogProductQueryAdapter
-from claude_ddd.ordering.infrastructure.adapters.customer_query_adapter import CustomerQueryAdapter
-from claude_ddd.ordering.infrastructure.persistence.in_memory_order_repository import InMemoryOrderRepository
+from claude_ddd.contexts.ordering.application.dtos.order_dto import AddItemInput, CancelOrderInput, CreateOrderInput, PlaceOrderInput
+from claude_ddd.contexts.ordering.application.use_cases.add_item_to_order import AddItemToOrderUseCase
+from claude_ddd.contexts.ordering.application.use_cases.cancel_order import CancelOrderUseCase
+from claude_ddd.contexts.ordering.application.use_cases.create_order import CreateOrderUseCase
+from claude_ddd.contexts.ordering.application.use_cases.place_order import PlaceOrderUseCase
+from claude_ddd.contexts.ordering.domain.services.pricing_service import PricingService
+from claude_ddd.contexts.ordering.infrastructure.adapters.catalog_product_query_adapter import CatalogProductQueryAdapter
+from claude_ddd.contexts.ordering.infrastructure.adapters.customer_query_adapter import CustomerQueryAdapter
+from claude_ddd.contexts.ordering.infrastructure.persistence.in_memory_order_repository import InMemoryOrderRepository
 
-from claude_ddd.shared.infrastructure.event_bus.simple_event_bus import EventBus
+from claude_ddd.contexts.shared.infrastructure.event_bus.simple_event_bus import EventBus
 
 
 @pytest.fixture

@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel
 
-from claude_ddd.catalog.application.dtos.product_dto import CreateProductInput
+from claude_ddd.contexts.catalog.application.dtos.product_dto import CreateProductInput
 
 router = APIRouter(prefix="/products", tags=["products"])
 

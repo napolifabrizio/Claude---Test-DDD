@@ -3,26 +3,28 @@ from decimal import Decimal
 
 from fastapi import FastAPI
 
-from claude_ddd.shared.domain.events.domain_event import DomainEvent
-from claude_ddd.shared.infrastructure.event_bus.simple_event_bus import EventBus
+from claude_ddd.contexts.shared.domain.events.domain_event import DomainEvent
+from claude_ddd.contexts.shared.infrastructure.event_bus.simple_event_bus import EventBus
 
-from claude_ddd.customers.application.use_cases.create_customer import CreateCustomerUseCase
-from claude_ddd.customers.infrastructure.persistence.in_memory_customer_repository import InMemoryCustomerRepository
+from claude_ddd.contexts.customers.application.use_cases.create_customer import CreateCustomerUseCase
+from claude_ddd.contexts.customers.infrastructure.persistence.in_memory_customer_repository import InMemoryCustomerRepository
 
-from claude_ddd.catalog.application.use_cases.create_product import CreateProductUseCase
-from claude_ddd.catalog.infrastructure.persistence.in_memory_product_repository import InMemoryProductRepository
+from claude_ddd.contexts.catalog.application.use_cases.create_product import CreateProductUseCase
+from claude_ddd.contexts.catalog.infrastructure.persistence.in_memory_product_repository import InMemoryProductRepository
 
-from claude_ddd.ordering.application.use_cases.add_item_to_order import AddItemToOrderUseCase
-from claude_ddd.ordering.application.use_cases.cancel_order import CancelOrderUseCase
-from claude_ddd.ordering.application.use_cases.create_order import CreateOrderUseCase
-from claude_ddd.ordering.application.use_cases.place_order import PlaceOrderUseCase
-from claude_ddd.ordering.domain.events.order_events import OrderCancelled, OrderCreated, OrderItemAdded, OrderPlaced
-from claude_ddd.ordering.domain.services.pricing_service import PricingService
-from claude_ddd.ordering.infrastructure.adapters.catalog_product_query_adapter import CatalogProductQueryAdapter
-from claude_ddd.ordering.infrastructure.adapters.customer_query_adapter import CustomerQueryAdapter
-from claude_ddd.ordering.infrastructure.persistence.in_memory_order_repository import InMemoryOrderRepository
+from claude_ddd.contexts.ordering.application.use_cases.add_item_to_order import AddItemToOrderUseCase
+from claude_ddd.contexts.ordering.application.use_cases.cancel_order import CancelOrderUseCase
+from claude_ddd.contexts.ordering.application.use_cases.create_order import CreateOrderUseCase
+from claude_ddd.contexts.ordering.application.use_cases.place_order import PlaceOrderUseCase
+from claude_ddd.contexts.ordering.domain.events.order_events import OrderCancelled, OrderCreated, OrderItemAdded, OrderPlaced
+from claude_ddd.contexts.ordering.domain.services.pricing_service import PricingService
+from claude_ddd.contexts.ordering.infrastructure.adapters.catalog_product_query_adapter import CatalogProductQueryAdapter
+from claude_ddd.contexts.ordering.infrastructure.adapters.customer_query_adapter import CustomerQueryAdapter
+from claude_ddd.contexts.ordering.infrastructure.persistence.in_memory_order_repository import InMemoryOrderRepository
 
 from claude_ddd.interfaces.api.routers import customers, products, orders
+from claude_ddd.interfaces.api.services.order_service import OrderOrchestrationService
+from claude_ddd.interfaces.sagas.checkout_saga import CheckoutSaga
 
 
 def _log_event(event: DomainEvent) -> None:
@@ -42,7 +44,7 @@ def build_container() -> dict:
     customer_query = CustomerQueryAdapter(customer_repo)
     product_query = CatalogProductQueryAdapter(product_repo)
 
-    return {
+    container = {
         "create_customer": CreateCustomerUseCase(customer_repo),
         "create_product": CreateProductUseCase(product_repo),
         "create_order": CreateOrderUseCase(order_repo, customer_query, event_bus),
@@ -54,6 +56,22 @@ def build_container() -> dict:
         "product_repo": product_repo,
         "order_repo": order_repo,
     }
+
+    # Application services — same-context orchestration
+    order_service = OrderOrchestrationService(
+        create_order=container["create_order"],
+        add_item=container["add_item"],
+        place_order=container["place_order"],
+    )
+    container["order_service"] = order_service
+
+    # Sagas — cross-context orchestration
+    container["checkout_saga"] = CheckoutSaga(
+        create_customer=container["create_customer"],
+        order_service=order_service,
+    )
+
+    return container
 
 
 @asynccontextmanager

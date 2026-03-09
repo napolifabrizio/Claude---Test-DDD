@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel
 
-from claude_ddd.customers.application.dtos.customer_dto import CreateCustomerInput
+from claude_ddd.contexts.customers.application.dtos.customer_dto import CreateCustomerInput
 
 router = APIRouter(prefix="/customers", tags=["customers"])
 
